@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>इंटरैक्टिव प्लैनेटेरियम चार्ट</title>
+<style>
+  body { margin: 0; background: #050510; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+  #chart-container { position: relative; width: 600px; height: 600px; margin-top: 20px; border-radius: 50%; border: 1px dashed #3f51b5; }
+  .planet { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); transition: filter 0.3s ease; }
+  .planet.off { filter: brightness(0.2) saturate(0.2); }
+  .planet.on { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #ff9800); }
+  .controls { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+  button { padding: 8px 16px; cursor: pointer; background: #3f51b5; border: none; color: white; border-radius: 4px; }
+  button.active { background: #4caf50; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <input type="datetime-local" id="datetime">
+  <!-- प्लैनेट टॉगल बटन -->
+  <button onclick="togglePlanet('sun')" id="btn-sun" class="active">Sun</button>
+  <button onclick="togglePlanet('moon')" id="btn-moon" class="active">Moon</button>
+  <button onclick="togglePlanet('mars')" id="btn-mars" class="active">Mars</button>
+</div>
+
+<div id="chart-container">
+  <!-- यहाँ प्लैनेट्स के इमेज एलिमेंट होंगे -->
+  <img src="sun.png" id="planet-sun" class="planet on" style="top: 50%; left: 50%;">
+  <img src="moon.png" id="planet-moon" class="planet on" style="top: 30%; left: 50%;">
+  <img src="mars.png" id="planet-mars" class="planet on" style="top: 70%; left: 20%;">
+</div>
+
+<script>
+  function togglePlanet(planetName) {
+    const planetElement = document.getElementById(`planet-${planetName}`);
+    const buttonElement = document.getElementById(`btn-${planetName}`);
+    
+    if (planetElement.classList.contains('on')) {
+      planetElement.classList.remove('on');
+      planetElement.classList.add('off');
+      buttonElement.classList.remove('active');
+    } else {
+      planetElement.classList.remove('off');
+      planetElement.classList.add('on');
+      buttonElement.classList.add('active');
+    }
+  }
+
+  // यहाँ पर आपको डेट/टाइम बदलने पर प्लैनेट की 
+  // पोजीशन अपडेट करने का लॉजिक इंटीग्रेट करना होगा।
+</script>
+
+</body>
+</html>
