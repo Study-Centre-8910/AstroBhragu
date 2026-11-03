@@ -1,55 +1,648 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>इंटरैक्टिव प्लैनेटेरियम चार्ट</title>
-<style>
-  body { margin: 0; background: #050510; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-  #chart-container { position: relative; width: 600px; height: 600px; margin-top: 20px; border-radius: 50%; border: 1px dashed #3f51b5; }
-  .planet { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); transition: filter 0.3s ease; }
-  .planet.off { filter: brightness(0.2) saturate(0.2); }
-  .planet.on { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #ff9800); }
-  .controls { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
-  button { padding: 8px 16px; cursor: pointer; background: #3f51b5; border: none; color: white; border-radius: 4px; }
-  button.active { background: #4caf50; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroBhrigu - Consult Planetary Energies</title>
+    <style>
+        :root {
+            --bg-color: #0d0f18;
+            --card-bg: #161926;
+            --accent-color: #d4af37;
+            --text-color: #e0e6ed;
+            --text-dim: #94a3b8;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --chat-user-bg: #1e293b;
+            --chat-planet-bg: #1a233a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(22, 25, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* User Onboarding Form */
+        .user-form-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            margin: 2rem auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #090a10;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #d4af37, #aa8625);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Planets Grid */
+        .planets-section {
+            display: none;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--accent-color);
+        }
+
+        .planets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .planet-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .planet-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .planet-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Chat Window */
+        .chat-section {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            max-width: 700px;
+            margin: 0 auto;
+            overflow: hidden;
+            height: 500px;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--chat-user-bg);
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.planet {
+            align-self: flex-start;
+            background: var(--chat-planet-bg);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Spinner Loading */
+        .spinner-wrapper {
+            align-self: flex-start;
+            padding: 0.5rem 1rem;
+            background: var(--chat-planet-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #090a10;
+            color: #fff;
+        }
+
+        /* Admin Dashboard */
+        .admin-dashboard {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.5rem;
+            height: 550px;
+        }
+
+        .user-list {
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .user-item {
+            padding: 1rem;
+            background: #090a10;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+        }
+
+        .user-item.active {
+            border-color: var(--accent-color);
+            background: #181d2c;
+        }
+
+        .admin-chat-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #090a10;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
 
-<div class="controls">
-  <input type="datetime-local" id="datetime">
-  <!-- प्लैनेट टॉगल बटन -->
-  <button onclick="togglePlanet('sun')" id="btn-sun" class="active">Sun</button>
-  <button onclick="togglePlanet('moon')" id="btn-moon" class="active">Moon</button>
-  <button onclick="togglePlanet('mars')" id="btn-mars" class="active">Mars</button>
-</div>
+    <header>
+        <div class="brand">
+            <h1 id="brand-title">AstroBhrigu</h1>
+        </div>
+        <div id="status-tag" style="color: var(--text-dim); font-size: 0.9rem;">
+            Consultation Portal
+        </div>
+    </header>
 
-<div id="chart-container">
-  <!-- यहाँ प्लैनेट्स के इमेज एलिमेंट होंगे -->
-  <img src="sun.png" id="planet-sun" class="planet on" style="top: 50%; left: 50%;">
-  <img src="moon.png" id="planet-moon" class="planet on" style="top: 30%; left: 50%;">
-  <img src="mars.png" id="planet-mars" class="planet on" style="top: 70%; left: 20%;">
-</div>
+    <div class="container">
+        <!-- 1. USER DETAILS FORM -->
+        <div id="user-form-card" class="user-form-card">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent-color);">Enter Details</h2>
+            <form id="onboarding-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="user-name" required placeholder="e.g. Rahul Sharma">
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="user-dob" required>
+                </div>
+                <div class="form-group">
+                    <label>Time of Birth</label>
+                    <input type="time" id="user-tob" required>
+                </div>
+                <button type="submit" class="btn-primary">Proceed to Planets</button>
+            </form>
+        </div>
 
-<script>
-  function togglePlanet(planetName) {
-    const planetElement = document.getElementById(`planet-${planetName}`);
-    const buttonElement = document.getElementById(`btn-${planetName}`);
-    
-    if (planetElement.classList.contains('on')) {
-      planetElement.classList.remove('on');
-      planetElement.classList.add('off');
-      buttonElement.classList.remove('active');
-    } else {
-      planetElement.classList.remove('off');
-      planetElement.classList.add('on');
-      buttonElement.classList.add('active');
-    }
-  }
+        <!-- 2. PLANETS GRID -->
+        <div id="planets-section" class="planets-section">
+            <h2 class="section-title">Choose a Planetary Entity</h2>
+            <div class="planets-grid" id="planets-grid"></div>
+        </div>
 
-  // यहाँ पर आपको डेट/टाइम बदलने पर प्लैनेट की 
-  // पोजीशन अपडेट करने का लॉजिक इंटीग्रेट करना होगा।
-</script>
+        <!-- 3. CHAT INTERFACE -->
+        <div id="chat-section" class="chat-section">
+            <div class="chat-header">
+                <div id="selected-planet-icon" class="planet-icon" style="width:40px; height:40px; margin:0;"></div>
+                <div>
+                    <h3 id="selected-planet-name" style="color: var(--accent-color);">Planet</h3>
+                    <small id="user-display-info" style="color: var(--text-dim);"></small>
+                </div>
+                <button id="back-to-planets" style="margin-left: auto; background: transparent; border: 1px solid var(--border-color); color: #fff; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer;">Change</button>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            
+            <!-- Loading Spinner Container -->
+            <div class="spinner-wrapper" id="chat-spinner">
+                <div class="spinner"></div>
+            </div>
 
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Ask your question...">
+                <button id="send-btn" class="btn-primary" style="width: auto; padding: 0 1.5rem;">Send</button>
+            </div>
+        </div>
+
+        <!-- 4. ADMIN DASHBOARD -->
+        <div id="admin-dashboard" class="admin-dashboard">
+            <h2 style="color: var(--accent-color); margin-bottom: 1rem;">Astrologer Admin Dashboard</h2>
+            <div class="admin-layout">
+                <div class="user-list" id="admin-user-list">
+                    <!-- Users list dynamically added -->
+                </div>
+                <div class="admin-chat-area">
+                    <div id="admin-user-meta" style="padding: 0.5rem; background: #161926; margin-bottom: 0.5rem; border-radius: 4px; font-size: 0.9rem;">
+                        Select a user to view consultation details.
+                    </div>
+                    <div class="admin-chat-messages" id="admin-chat-messages"></div>
+                    <div class="chat-input-area" style="padding:0;">
+                        <input type="text" id="admin-input" placeholder="Reply on behalf of planet...">
+                        <button id="admin-send-btn" class="btn-primary" style="width: auto; padding: 0 1.5rem;">Reply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Definitions
+        const planetsData = [
+            { id: 'sun', name: 'Sun (सूर्य)', color: '#ffaa00' },
+            { id: 'moon', name: 'Moon (चंद्र)', color: '#e6e6e6' },
+            { id: 'mars', name: 'Mars (मंगल)', color: '#ff4444' },
+            { id: 'mercury', name: 'Mercury (बुध)', color: '#00cc66' },
+            { id: 'jupiter', name: 'Jupiter (गुरु)', color: '#ffcc00' },
+            { id: 'venus', name: 'Venus (शुक्र)', color: '#ff66cc' },
+            { id: 'saturn', name: 'Saturn (शनि)', color: '#3399ff' },
+            { id: 'rahu', name: 'Rahu (राहु)', color: '#9933ff' },
+            { id: 'ketu', name: 'Ketu (केतु)', color: '#888888' }
+        ];
+
+        let currentUser = null;
+        let selectedPlanet = null;
+        let activeAdminUserId = null;
+
+        // Triple Click Gatekeeping for Admin Access
+        let clickCount = 0;
+        let clickTimer = null;
+        document.getElementById('brand-title').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+            } else if (clickCount === 3) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
+                const password = prompt("Enter Secret Admin Password:");
+                if (password === "AstroBhrigu8910") {
+                    openAdminDashboard();
+                } else if (password !== null) {
+                    alert("Unauthorized Access!");
+                }
+            }
+        });
+
+        // Initialize User Onboarding Form
+        document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const dob = document.getElementById('user-dob').value;
+            const tob = document.getElementById('user-tob').value;
+
+            currentUser = {
+                id: 'usr_' + Date.now(),
+                name, dob, tob
+            };
+
+            document.getElementById('user-form-card').style.display = 'none';
+            renderPlanets();
+            document.getElementById('planets-section').style.display = 'block';
+        });
+
+        // Render Planet Options
+        function renderPlanets() {
+            const grid = document.getElementById('planets-grid');
+            grid.innerHTML = '';
+            planetsData.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'planet-card';
+                card.innerHTML = `
+                    <div class="planet-icon" style="background: ${p.color}; box-shadow: 0 0 15px ${p.color}aa;"></div>
+                    <h4>${p.name}</h4>
+                `;
+                card.onclick = () => selectPlanet(p);
+                grid.appendChild(card);
+            });
+        }
+
+        // Select Planet and Start Consultation Window
+        function selectPlanet(planet) {
+            selectedPlanet = planet;
+            document.getElementById('planets-section').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'flex';
+
+            document.getElementById('selected-planet-name').innerText = planet.name;
+            document.getElementById('selected-planet-icon').style.background = planet.color;
+            document.getElementById('user-display-info').innerText = `${currentUser.name} (${currentUser.dob})`;
+
+            // Register/Update session state
+            updateSessionState();
+            renderUserChat();
+        }
+
+        document.getElementById('back-to-planets').onclick = () => {
+            document.getElementById('chat-section').style.display = 'none';
+            document.getElementById('planets-section').style.display = 'block';
+        };
+
+        // User Sends Message
+        document.getElementById('send-btn').onclick = sendUserMessage;
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendUserMessage();
+        });
+
+        function sendUserMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const sessions = JSON.parse(localStorage.getItem('ab_sessions') || '{}');
+            if (!sessions[currentUser.id]) return;
+
+            sessions[currentUser.id].messages.push({
+                sender: 'user',
+                text: text,
+                timestamp: Date.now()
+            });
+
+            sessions[currentUser.id].awaitingResponse = true;
+            localStorage.setItem('ab_sessions', JSON.stringify(sessions));
+
+            input.value = '';
+            renderUserChat();
+        }
+
+        // Render User Chat Screen with Spinner Logic
+        function renderUserChat() {
+            if (!currentUser) return;
+            const sessions = JSON.parse(localStorage.getItem('ab_sessions') || '{}');
+            const session = sessions[currentUser.id];
+
+            const msgContainer = document.getElementById('chat-messages');
+            const spinner = document.getElementById('chat-spinner');
+            msgContainer.innerHTML = '';
+
+            if (session && session.messages) {
+                session.messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = `message ${msg.sender}`;
+                    div.innerText = msg.text;
+                    msgContainer.appendChild(div);
+                });
+
+                // Show spinner if awaiting astrologer response
+                if (session.awaitingResponse) {
+                    spinner.style.display = 'block';
+                } else {
+                    spinner.style.display = 'none';
+                }
+            }
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+
+        // Sync helper
+        function updateSessionState() {
+            const sessions = JSON.parse(localStorage.getItem('ab_sessions') || '{}');
+            if (!sessions[currentUser.id]) {
+                sessions[currentUser.id] = {
+                    user: currentUser,
+                    planet: selectedPlanet,
+                    messages: [],
+                    awaitingResponse: false
+                };
+            } else {
+                sessions[currentUser.id].planet = selectedPlanet;
+            }
+            localStorage.setItem('ab_sessions', JSON.stringify(sessions));
+        }
+
+        // Open Hidden Admin Dashboard Window
+        function openAdminDashboard() {
+            document.getElementById('user-form-card').style.display = 'none';
+            document.getElementById('planets-section').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+
+            renderAdminDashboard();
+        }
+
+        // Render Admin Views
+        function renderAdminDashboard() {
+            const sessions = JSON.parse(localStorage.getItem('ab_sessions') || '{}');
+            const userList = document.getElementById('admin-user-list');
+            userList.innerHTML = '';
+
+            Object.keys(sessions).forEach(uid => {
+                const s = sessions[uid];
+                const item = document.createElement('div');
+                item.className = `user-item ${activeAdminUserId === uid ? 'active' : ''}`;
+                item.innerHTML = `
+                    <strong>${s.user.name}</strong> <br>
+                    <small>DOB: ${s.user.dob} | TOB: ${s.user.tob}</small><br>
+                    <small style="color: var(--accent-color);">Planet: ${s.planet ? s.planet.name : 'None'}</small>
+                `;
+                item.onclick = () => {
+                    activeAdminUserId = uid;
+                    renderAdminDashboard();
+                };
+                userList.appendChild(item);
+            });
+
+            renderAdminChat();
+        }
+
+        function renderAdminChat() {
+            const adminMsgContainer = document.getElementById('admin-chat-messages');
+            const metaContainer = document.getElementById('admin-user-meta');
+            adminMsgContainer.innerHTML = '';
+
+            if (!activeAdminUserId) {
+                metaContainer.innerText = 'Select a user to view consultation details.';
+                return;
+            }
+
+            const sessions = JSON.parse(localStorage.getItem('ab_sessions') || '{}');
+            const session = sessions[activeAdminUserId];
+
+            if (session) {
+                metaContainer.innerHTML = `
+                    Talking to: <strong>${session.user.name}</strong> | DOB: ${session.user.dob} | TOB: ${session.user.tob} | Planet: <span style="color: var(--accent-color);">${session.planet.name}</span>
+                `;
+
+                session.messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = `message ${msg.sender === 'user' ? 'user' : 'planet'}`;
+                    div.style.alignSelf = msg.sender === 'user' ? 'flex-start' : 'flex-end';
+                    div.innerText = `${msg.sender === 'user' ? 'User' : session.planet.name}: ${msg.text}`;
+                    adminMsgContainer.appendChild(div);
+                });
+            }
+            adminMsgContainer.scrollTop = adminMsgContainer.scrollHeight;
+        }
+
+        // Admin Sends Reply
+        document.getElementById('admin-send-btn').onclick = sendAdminMessage;
+        document.getElementById('admin-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendAdminMessage();
+        });
+
+        function sendAdminMessage() {
+            if (!activeAdminUserId) return;
+            const input = document.getElementById('admin-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const sessions = JSON.parse(localStorage.getItem('ab_sessions') || '{}');
+            if (!sessions[activeAdminUserId]) return;
+
+            sessions[activeAdminUserId].messages.push({
+                sender: 'planet',
+                text: text,
+                timestamp: Date.now()
+            });
+
+            // Turn off spinner once response is sent
+            sessions[activeAdminUserId].awaitingResponse = false;
+            localStorage.setItem('ab_sessions', JSON.stringify(sessions));
+
+            input.value = '';
+            renderAdminDashboard();
+        }
+
+        // Real-Time Cross-Window Synchronization Listener
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ab_sessions') {
+                if (document.getElementById('chat-section').style.display === 'flex') {
+                    renderUserChat();
+                }
+                if (document.getElementById('admin-dashboard').style.display === 'block') {
+                    renderAdminDashboard();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
