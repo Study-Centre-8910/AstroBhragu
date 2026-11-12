@@ -2,94 +2,474 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>एस्ट्रोलॉजी कलर कोडिंग</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroBhrigu - Consult Planetary Energies</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0f2f5; }
-        .container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 300px; }
-        div { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        select, input { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-        #result { margin-top: 15px; font-weight: bold; text-align: center; padding: 10px; border-radius: 4px; }
+        :root {
+            --bg-color: #0d0f18;
+            --card-bg: #161926;
+            --accent-color: #d4af37;
+            --text-color: #e0e6ed;
+            --text-dim: #94a3b8;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --chat-user-bg: #1e293b;
+            --chat-planet-bg: #1a233a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(22, 25, 38, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Form styling */
+        .user-form-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 480px;
+            margin: 2rem auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #090a10;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #d4af37, #aa8625);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Planets Grid */
+        .planets-section {
+            display: none;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--accent-color);
+        }
+
+        .planets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .planet-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .planet-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .planet-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Chat Window */
+        .chat-section {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            max-width: 700px;
+            margin: 0 auto;
+            overflow: hidden;
+            height: 520px;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--chat-user-bg);
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.planet {
+            align-self: flex-start;
+            background: var(--chat-planet-bg);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Waiting Spinner */
+        .spinner-wrapper {
+            align-self: flex-start;
+            padding: 0.6rem 1rem;
+            background: var(--chat-planet-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #090a10;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>सूर्य ग्रह कलर कोडर</h2>
-    <div>
-        <label>सूर्य की राशि (1-12):</label>
-        <input type="number" id="sign" min="1" max="12" value="1">
-    </div>
-    <div>
-        <label>सूर्य का भाव (1-12):</label>
-        <input type="number" id="house" min="1" max="12" value="1">
-    </div>
-    <div>
-        <label>साथ बैठे ग्रह (कॉमा लगाकर लिखें):</label>
-        <input type="text" id="planets" placeholder="Saturn, Rahu">
-    </div>
-    <div>
-        <label><input type="checkbox" id="neechBhanga"> नीच भंग हुआ है?</label>
-    </div>
-    <button onclick="calculateSun()">रंग देखें</button>
-    <div id="result">यहाँ परिणाम दिखेगा</div>
-</div>
+    <header>
+        <div class="brand">
+            <h1>AstroBhrigu</h1>
+        </div>
+        <div style="color: var(--text-dim); font-size: 0.9rem;">
+            Planetary Consultation
+        </div>
+    </header>
 
-<script>
-function calculateSun() {
-    const sign = parseInt(document.getElementById('sign').value);
-    const house = parseInt(document.getElementById('house').value);
-    const planetsInput = document.getElementById('planets').value;
-    const planets = planetsInput.split(',').map(p => p.trim().toLowerCase());
-    const neechBhanga = document.getElementById('neechBhanga').checked;
+    <div class="container">
+        <!-- 1. USER DETAILS FORM -->
+        <div id="user-form-card" class="user-form-card">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent-color);">अपनी जानकारी दर्ज करें</h2>
+            <form id="onboarding-form">
+                <div class="form-group">
+                    <label>पूरा नाम (Full Name)</label>
+                    <input type="text" id="user-name" required placeholder="उदा. राहुल शर्मा">
+                </div>
+                <div class="form-group">
+                    <label>जन्म तिथि (Date of Birth)</label>
+                    <input type="date" id="user-dob" required>
+                </div>
+                <div class="form-group">
+                    <label>जन्म समय (Time of Birth)</label>
+                    <input type="time" id="user-tob" required>
+                </div>
+                <button type="submit" class="btn-primary">आगे बढ़ें</button>
+            </form>
+        </div>
 
-    let color = "Blue";
-    let bgColor = "#e3f2fd";
+        <!-- 2. PLANETS GRID -->
+        <div id="planets-section" class="planets-section">
+            <h2 class="section-title">किस ग्रह से परामर्श करना चाहते हैं?</h2>
+            <div class="planets-grid" id="planets-grid"></div>
+        </div>
 
-    if (planets.includes('rahu') || planets.includes('ketu')) {
-        if (sign === 1 || sign === 5) {
-            color = "Red"; bgColor = "#ffebee";
-        } else {
-            color = "Red"; bgColor = "#ffebee";
+        <!-- 3. CHAT INTERFACE -->
+        <div id="chat-section" class="chat-section">
+            <div class="chat-header">
+                <div id="selected-planet-icon" class="planet-icon" style="width:40px; height:40px; margin:0;"></div>
+                <div>
+                    <h3 id="selected-planet-name" style="color: var(--accent-color);">Planet</h3>
+                    <small id="user-display-info" style="color: var(--text-dim);"></small>
+                </div>
+                <button id="back-to-planets" style="margin-left: auto; background: transparent; border: 1px solid var(--border-color); color: #fff; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer;">ग्रह बदलें</button>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages"></div>
+            
+            <!-- Loading Spinner (Waiting state) -->
+            <div class="spinner-wrapper" id="chat-spinner">
+                <div class="spinner"></div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="अपना प्रश्न यहाँ लिखें...">
+                <button id="send-btn" class="btn-primary" style="width: auto; padding: 0 1.5rem;">भेजें</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const BOT_TOKEN = "9045141687:AAG1PLqHlmTyIqZM2Mvz7U5CscXr6zmCHCM";
+        const CHAT_ID = "7698399943";
+
+        const planetsData = [
+            { id: 'sun', name: 'Sun (सूर्य)', color: '#ffaa00' },
+            { id: 'moon', name: 'Moon (चंद्र)', color: '#e6e6e6' },
+            { id: 'mars', name: 'Mars (मंगल)', color: '#ff4444' },
+            { id: 'mercury', name: 'Mercury (बुध)', color: '#00cc66' },
+            { id: 'jupiter', name: 'Jupiter (गुरु)', color: '#ffcc00' },
+            { id: 'venus', name: 'Venus (शुक्र)', color: '#ff66cc' },
+            { id: 'saturn', name: 'Saturn (शनि)', color: '#3399ff' },
+            { id: 'rahu', name: 'Rahu (राहु)', color: '#9933ff' },
+            { id: 'ketu', name: 'Ketu (केतु)', color: '#888888' }
+        ];
+
+        let currentUser = null;
+        let selectedPlanet = null;
+        let activeSessionId = null;
+        let pollInterval = null;
+        let lastUpdateId = 0;
+
+        // User Onboarding Form
+        document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentUser = {
+                name: document.getElementById('user-name').value,
+                dob: document.getElementById('user-dob').value,
+                tob: document.getElementById('user-tob').value
+            };
+
+            document.getElementById('user-form-card').style.display = 'none';
+            renderPlanets();
+            document.getElementById('planets-section').style.display = 'block';
+        });
+
+        // Render Planets
+        function renderPlanets() {
+            const grid = document.getElementById('planets-grid');
+            grid.innerHTML = '';
+            planetsData.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'planet-card';
+                card.innerHTML = `
+                    <div class="planet-icon" style="background: ${p.color}; box-shadow: 0 0 15px ${p.color}aa;"></div>
+                    <h4>${p.name}</h4>
+                `;
+                card.onclick = () => selectPlanet(p);
+                grid.appendChild(card);
+            });
         }
-    } else if (sign === 1 || sign === 5) {
-        color = "Green"; bgColor = "#e8f5e9";
-    } else if (sign === 7) {
-        if (neechBhanga) {
-            if (![6, 8, 12, 1].includes(house)) {
-                color = "Green"; bgColor = "#e8f5e9";
-            } else {
-                color = "Orange"; bgColor = "#ffe0b2";
+
+        // Select Planet
+        function selectPlanet(planet) {
+            selectedPlanet = planet;
+            activeSessionId = 's_' + Math.floor(1000 + Math.random() * 9000); // 4-digit unique session ID
+
+            document.getElementById('planets-section').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'flex';
+
+            document.getElementById('selected-planet-name').innerText = planet.name;
+            document.getElementById('selected-planet-icon').style.background = planet.color;
+            document.getElementById('user-display-info').innerText = `${currentUser.name} (Session: ${activeSessionId})`;
+
+            // Clear previous chat
+            document.getElementById('chat-messages').innerHTML = '';
+            document.getElementById('chat-spinner').style.display = 'none';
+
+            // Start Listening for Telegram replies
+            startTelegramPolling();
+        }
+
+        document.getElementById('back-to-planets').onclick = () => {
+            document.getElementById('chat-section').style.display = 'none';
+            document.getElementById('planets-section').style.display = 'block';
+            if (pollInterval) clearInterval(pollInterval);
+        };
+
+        // Send Message to Telegram Bot
+        document.getElementById('send-btn').onclick = sendUserMessage;
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendUserMessage();
+        });
+
+        async function sendUserMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Render message on screen
+            appendMessage('user', text);
+            input.value = '';
+
+            // Show Spinner
+            document.getElementById('chat-spinner').style.display = 'block';
+
+            // Send payload to Telegram
+            const telegramMessage = `🔮 *NEW ASTROBHRIGU CONSULTATION*\n\n` +
+                `🆔 *Session:* \`${activeSessionId}\`\n` +
+                `👤 *Name:* ${currentUser.name}\n` +
+                `📅 *DOB:* ${currentUser.dob}\n` +
+                `⏰ *TOB:* ${currentUser.tob}\n` +
+                `🪐 *Planet:* ${selectedPlanet.name}\n\n` +
+                `💬 *Message:* \n"${text}"\n\n` +
+                `----------------------------------\n` +
+                `💡 *Reply format:*\n\`/reply ${activeSessionId} your answer here\``;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: telegramMessage,
+                        parse_mode: 'Markdown'
+                    })
+                });
+            } catch (err) {
+                console.error("Error sending message to Telegram:", err);
             }
-        } else {
-            color = "Red"; bgColor = "#ffebee";
         }
-    } else if ([8, 9, 12, 4].includes(sign)) {
-        if (planets.includes('saturn') || planets.includes('venus')) {
-            color = "Pink"; bgColor = "#fce4ec";
-        } else {
-            color = "Golden"; bgColor = "#fff9c4";
-        }
-    } else if (sign === 2) {
-        if ([1, 5, 9, 10].includes(house)) {
-            color = "Neutral (Blue)"; bgColor = "#e3f2fd";
-        } else {
-            color = "Pink"; bgColor = "#fce4ec";
-        }
-    } else if ([10, 11].includes(sign)) {
-        if ([1, 5, 9, 10].includes(house)) {
-            color = "Neutral (Blue)"; bgColor = "#e3f2fd";
-        } else {
-            color = "Orange"; bgColor = "#ffe0b2";
-        }
-    }
 
-    const resDiv = document.getElementById('result');
-    resDiv.innerText = "सूर्य का रंग: " + color;
-    resDiv.style.backgroundColor = bgColor;
-}
-</script>
+        function appendMessage(sender, text) {
+            const msgContainer = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.innerText = text;
+            msgContainer.appendChild(div);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
 
+        // Poll Telegram updates for Admin Replies
+        function startTelegramPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`);
+                    const data = await res.json();
+
+                    if (data.ok && data.result.length > 0) {
+                        data.result.forEach(update => {
+                            lastUpdateId = update.update_id;
+                            if (update.message && update.message.text) {
+                                const msgText = update.message.text;
+                                
+                                // Check for reply format: /reply SESSION_ID Answer...
+                                const replyPrefix = `/reply ${activeSessionId}`;
+                                if (msgText.startsWith(replyPrefix)) {
+                                    const replyContent = msgText.replace(replyPrefix, '').trim();
+                                    if (replyContent) {
+                                        // Hide Spinner and display Planet reply
+                                        document.getElementById('chat-spinner').style.display = 'none';
+                                        appendMessage('planet', replyContent);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Polling error:", e);
+                }
+            }, 3000); // Checks every 3 seconds
+        }
+    </script>
 </body>
 </html>
