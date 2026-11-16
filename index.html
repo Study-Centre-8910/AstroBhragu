@@ -154,7 +154,7 @@
             box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
         }
 
-        /* Realistic 3D Rotating Planet Sphere */
+        /* 3D Rotating Planet Sphere */
         .planet-sphere-wrapper {
             width: 82px;
             height: 82px;
@@ -176,7 +176,6 @@
             z-index: 2;
         }
 
-        /* 3D Spherical Lighting & Shadow Overlay */
         .planet-sphere::after {
             content: '';
             position: absolute;
@@ -197,6 +196,32 @@
             transform: rotate(-22deg);
             z-index: 3;
             pointer-events: none;
+        }
+
+        /* Rahu Black Hole (Red Circumference) */
+        .rah-hole {
+            background: #000 !important;
+            box-shadow: 0 0 18px #ff2222, inset 0 0 15px #ff4444 !important;
+            border: 2px solid #ff3333;
+            animation: rotatePlanetAxis 20s linear infinite, pulseRed 3s ease-in-out infinite alternate !important;
+        }
+
+        /* Ketu Black Hole (Yellow Circumference) */
+        .ket-hole {
+            background: #000 !important;
+            box-shadow: 0 0 18px #ffd700, inset 0 0 15px #ffea00 !important;
+            border: 2px solid #ffcc00;
+            animation: rotatePlanetAxis 20s linear infinite, pulseYellow 3s ease-in-out infinite alternate !important;
+        }
+
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 10px #ff2222, inset 0 0 10px #ff4444; }
+            100% { box-shadow: 0 0 25px #ff0000, inset 0 0 20px #ff6666; }
+        }
+
+        @keyframes pulseYellow {
+            0% { box-shadow: 0 0 10px #ffd700, inset 0 0 10px #ffea00; }
+            100% { box-shadow: 0 0 25px #ffbb00, inset 0 0 20px #ffee55; }
         }
 
         @keyframes rotatePlanetAxis {
@@ -403,18 +428,15 @@
     </div>
 
     <script>
-        // TELEGRAM CONFIGURATION
         const BOT_TOKEN = "9045141687:AAG1PLqHlmTyIqZM2Mvz7U5CscXr6zmCHCM";
         const CHAT_ID = "7698399943";
 
-        // REALISTIC PLANETARY TEXTURES & GLOWS
         const planetsData = [
             { 
                 id: 'sun', 
                 name: 'Sun (सूर्य)', 
                 sub: 'आत्मा व तेज',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/640px-Map_of_the_full_sun.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #fff3b0, #ff9900 45%, #cc3300 90%)',
                 glow: 'rgba(255, 165, 0, 0.55)'
             },
             { 
@@ -422,7 +444,6 @@
                 name: 'Moon (चंद्र)', 
                 sub: 'मन व शांति',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Moon_map_grid_showing_near_and_far_sides.jpg/640px-Moon_map_grid_showing_near_and_far_sides.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #ffffff, #cbd5e1 55%, #64748b 95%)',
                 glow: 'rgba(226, 232, 240, 0.45)'
             },
             { 
@@ -430,7 +451,6 @@
                 name: 'Mars (मंगल)', 
                 sub: 'साहस व ऊर्जा',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/640px-OSIRIS_Mars_true_color.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #ff8a65, #d84315 55%, #4e1609 95%)',
                 glow: 'rgba(239, 68, 68, 0.5)'
             },
             { 
@@ -438,7 +458,6 @@
                 name: 'Mercury (बुध)', 
                 sub: 'बुद्धि व वाणी',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mercury_in_color_-_Prockter07_centered.jpg/640px-Mercury_in_color_-_Prockter07_centered.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #a7f3d0, #10b981 55%, #064e3b 95%)',
                 glow: 'rgba(16, 185, 129, 0.45)'
             },
             { 
@@ -446,7 +465,6 @@
                 name: 'Jupiter (गुरु)', 
                 sub: 'ज्ञान व भाग्य',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Jupiter.jpg/640px-Jupiter.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #fef08a, #d97706 55%, #78350f 95%)',
                 glow: 'rgba(245, 158, 11, 0.5)'
             },
             { 
@@ -454,7 +472,6 @@
                 name: 'Venus (शुक्र)', 
                 sub: 'प्रेम व वैभव',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Venus-real_color.jpg/640px-Venus-real_color.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #fbcfe8, #ec4899 55%, #831843 95%)',
                 glow: 'rgba(244, 114, 182, 0.45)'
             },
             { 
@@ -462,30 +479,25 @@
                 name: 'Saturn (शनि)', 
                 sub: 'कर्म व न्याय',
                 texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/640px-Saturn_during_Equinox.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #fde68a, #b45309 60%, #451a03 95%)',
                 glow: 'rgba(217, 119, 6, 0.45)',
                 hasRing: true
             },
             { 
                 id: 'rahu', 
                 name: 'Rahu (राहु)', 
-                sub: 'रहस्य व महत्वाकांक्षा',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Neptune_Full.jpg/640px-Neptune_Full.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #818cf8, #3730a3 55%, #1e1b4b 95%)',
-                glow: 'rgba(99, 102, 241, 0.5)'
+                sub: 'रहस्य व माया',
+                isBlackHole: true,
+                holeClass: 'rah-hole'
             },
             { 
                 id: 'ketu', 
                 name: 'Ketu (केतु)', 
                 sub: 'मोक्ष व वैराग्य',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Pluto_in_True_Color_-_High-Res.jpg/640px-Pluto_in_True_Color_-_High-Res.jpg',
-                fallback: 'radial-gradient(circle at 30% 30%, #cbd5e1, #475569 55%, #0f172a 95%)',
-                glow: 'rgba(148, 163, 184, 0.4)'
+                isBlackHole: true,
+                holeClass: 'ket-hole'
             }
         ];
 
-        // 1. PERSISTENT UNIQUE REPLY CODE PER DEVICE/USER
-        // यह कोड एक बार बनने के बाद इस यूजर/डिवाइस के लिए फिक्स रहेगा, बार-बार नहीं बदलेगा
         function getOrCreateUserReplyCode() {
             let code = localStorage.getItem('astrobhrigu_user_code');
             if (!code) {
@@ -501,11 +513,9 @@
         let pollInterval = null;
         let isPolling = false;
 
-        // Track processed Telegram update_ids so no message ever duplicates
         let processedUpdateIds = new Set(JSON.parse(localStorage.getItem('ab_processed_updates') || '[]'));
         let lastUpdateId = parseInt(localStorage.getItem('ab_last_update_id') || '0', 10);
 
-        // Initialize Telegram offset on page load so old messages don't flood
         async function syncInitialTelegramOffset() {
             try {
                 const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=-1`);
@@ -523,7 +533,6 @@
         }
         syncInitialTelegramOffset();
 
-        // User Onboarding Form Submit
         document.getElementById('onboarding-form').addEventListener('submit', (e) => {
             e.preventDefault();
             currentUser = {
@@ -537,7 +546,6 @@
             document.getElementById('planets-section').style.display = 'block';
         });
 
-        // Render Realistic 3D Rotating Planets
         function renderPlanets() {
             const grid = document.getElementById('planets-grid');
             grid.innerHTML = '';
@@ -545,12 +553,20 @@
                 const card = document.createElement('div');
                 card.className = 'planet-card';
                 
-                const ringHTML = p.hasRing ? `<div class="saturn-ring"></div>` : '';
+                let sphereHTML = '';
+                if (p.isBlackHole) {
+                    sphereHTML = `<div class="planet-sphere ${p.holeClass}"></div>`;
+                } else {
+                    const ringHTML = p.hasRing ? `<div class="saturn-ring"></div>` : '';
+                    sphereHTML = `
+                        <div class="planet-sphere" style="background-image: url('${p.texture}'); box-shadow: 0 0 22px ${p.glow};"></div>
+                        ${ringHTML}
+                    `;
+                }
                 
                 card.innerHTML = `
                     <div class="planet-sphere-wrapper">
-                        <div class="planet-sphere" style="background-image: url('${p.texture}'), ${p.fallback}; box-shadow: 0 0 22px ${p.glow};"></div>
-                        ${ringHTML}
+                        ${sphereHTML}
                     </div>
                     <h4>${p.name}</h4>
                     <small>${p.sub}</small>
@@ -560,7 +576,6 @@
             });
         }
 
-        // Select Planet & Open Chat
         function selectPlanet(planet) {
             selectedPlanet = planet;
 
@@ -569,15 +584,19 @@
 
             document.getElementById('selected-planet-name').innerText = planet.name;
             const iconEl = document.getElementById('selected-planet-icon');
-            iconEl.style.backgroundImage = `url('${planet.texture}'), ${planet.fallback}`;
-            iconEl.style.boxShadow = `0 0 14px ${planet.glow}`;
+            
+            if (planet.isBlackHole) {
+                iconEl.className = `chat-header-planet ${planet.holeClass}`;
+                iconEl.style.backgroundImage = 'none';
+            } else {
+                iconEl.className = 'chat-header-planet';
+                iconEl.style.backgroundImage = `url('${planet.texture}')`;
+                iconEl.style.boxShadow = `0 0 14px ${planet.glow}`;
+            }
 
             document.getElementById('user-display-info').innerText = `${currentUser.name} • ID: ${USER_REPLY_CODE}`;
 
-            // Load existing chat history for this planet if any
             loadChatHistory();
-
-            // Start Polling for Admin Reply
             startTelegramPolling();
         }
 
@@ -586,7 +605,6 @@
             document.getElementById('planets-section').style.display = 'block';
         };
 
-        // Chat History Management per Planet
         function getChatStorageKey() {
             return `ab_chat_${USER_REPLY_CODE}_${selectedPlanet.id}`;
         }
@@ -616,7 +634,6 @@
             msgContainer.scrollTop = msgContainer.scrollHeight;
         }
 
-        // Send User Message to Telegram
         document.getElementById('send-btn').onclick = sendUserMessage;
         document.getElementById('user-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendUserMessage();
@@ -630,7 +647,6 @@
             saveAndRenderMessage('user', text);
             input.value = '';
 
-            // Show Silent Loading Spinner
             document.getElementById('chat-spinner').style.display = 'block';
 
             const telegramMessage = 
@@ -659,12 +675,11 @@
             }
         }
 
-        // Poll Telegram Updates (Strictly Single Delivery, No Duplicates)
         function startTelegramPolling() {
             if (pollInterval) clearInterval(pollInterval);
 
             pollInterval = setInterval(async () => {
-                if (isPolling) return; // Prevent overlapping requests
+                if (isPolling) return;
                 isPolling = true;
 
                 try {
@@ -675,17 +690,14 @@
                         for (const update of data.result) {
                             const uid = update.update_id;
 
-                            // Update offset immediately
                             if (uid > lastUpdateId) {
                                 lastUpdateId = uid;
                                 localStorage.setItem('ab_last_update_id', lastUpdateId.toString());
                             }
 
-                            // Skip if this exact update was already processed
                             if (processedUpdateIds.has(uid)) continue;
 
                             processedUpdateIds.add(uid);
-                            // Keep only last 100 processed IDs in storage
                             const recentIds = Array.from(processedUpdateIds).slice(-100);
                             localStorage.setItem('ab_processed_updates', JSON.stringify(recentIds));
 
@@ -693,7 +705,6 @@
                                 const msgText = update.message.text.trim();
                                 const prefix = `/reply ${USER_REPLY_CODE}`;
 
-                                // Match exact user reply code (case-insensitive check for command)
                                 if (msgText.toLowerCase().startsWith(prefix.toLowerCase())) {
                                     const replyContent = msgText.slice(prefix.length).trim();
                                     if (replyContent) {
