@@ -408,7 +408,7 @@
                 sub: 'आत्मा व तेज',
                 img: 'nasa-JHyiw_dpALk-unsplash.jpg',
                 altImg: 'sun.jpg',
-                cropRatio: 0.56,
+                cropRatio: 0.52,
                 isSun: true,
                 baseColor: '#e65c00'
             },
@@ -418,8 +418,8 @@
                 sub: 'मन व शांति',
                 img: 'neven-krcmarek-9dTg44Qhx1Q-unsplash.jpg',
                 altImg: 'moon.jpg',
-                cropRatio: 0.54,
-                baseColor: '#8c929ac'
+                cropRatio: 0.50,
+                baseColor: '#8c929a'
             },
             { 
                 id: 'mars', 
@@ -427,7 +427,7 @@
                 sub: 'साहस व ऊर्जा',
                 img: 'nasa-hubble-space-telescope-5trCgHFr_bc-unsplash.jpg',
                 altImg: 'mars.jpg',
-                cropRatio: 0.46,
+                cropRatio: 0.42,
                 baseColor: '#c1440e'
             },
             { 
@@ -436,7 +436,7 @@
                 sub: 'बुद्धि व वाणी',
                 img: 'fjbeeRiPRQjQNhizwy7cWX.jpg',
                 altImg: 'mercury.jpg',
-                cropRatio: 0.62,
+                cropRatio: 0.58,
                 baseColor: '#5a6382'
             },
             { 
@@ -445,7 +445,7 @@
                 sub: 'ज्ञान व भाग्य',
                 img: 'nasa-hubble-space-telescope-tinAxw_mP38-unsplash.jpg',
                 altImg: 'jupiter.jpg',
-                cropRatio: 0.62,
+                cropRatio: 0.58,
                 baseColor: '#c88b3a'
             },
             { 
@@ -454,7 +454,7 @@
                 sub: 'प्रेम व वैभव',
                 img: 'simon-lee-XnGxTBij48Q-unsplash.jpg',
                 altImg: 'venus.jpg',
-                cropRatio: 0.58,
+                cropRatio: 0.54,
                 isSun: true,
                 baseColor: '#d96b27'
             },
@@ -464,7 +464,7 @@
                 sub: 'कर्म व न्याय',
                 img: 'nasa-2W-QWAC0mzI-unsplash.jpg',
                 altImg: 'saturn.jpg',
-                cropRatio: 0.34,
+                cropRatio: 0.30,
                 isSaturn: true,
                 baseColor: '#d8be8a'
             },
@@ -484,25 +484,24 @@
             }
         ];
 
-        // True 3D Sphere & Ring Renderer using Three.js (Zero black seams, Right-to-Left rotation)
+        // 3D Sphere Renderer with perfectly adjusted Zoom-Out camera distance for full view and unclipped Saturn rings
         function create3DPlanetSphere(containerEl, planet, width, height) {
             const scene = new THREE.Scene();
             const aspect = width / height;
-            const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 100);
-            camera.position.z = planet.isSaturn ? 3.55 : 2.95;
+            // Slightly wider FOV and zoomed out camera distance so nothing gets clipped
+            const camera = new THREE.PerspectiveCamera(44, aspect, 0.1, 100);
+            camera.position.z = planet.isSaturn ? 4.35 : 3.45;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(width, height);
             renderer.setPixelRatio(window.devicePixelRatio || 1);
             containerEl.appendChild(renderer.domElement);
 
-            // Seamless Texture Canvas (Purely inside the planet disk, zero black margins)
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 256;
             const ctx = canvas.getContext('2d');
 
-            // Fill base color first so no black line ever appears
             ctx.fillStyle = planet.baseColor || '#888888';
             ctx.fillRect(0, 0, 512, 256);
 
@@ -513,13 +512,11 @@
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = () => {
-                // Crop strictly inside the lit planet center so zero black background enters texture
                 const minSide = Math.min(img.width, img.height);
-                const cropSize = minSide * (planet.cropRatio || 0.55);
+                const cropSize = minSide * (planet.cropRatio || 0.52);
                 const sx = (img.width - cropSize) / 2;
                 const sy = (img.height - cropSize) / 2;
 
-                // Draw seamless mirrored wrap
                 ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, 256, 256);
                 ctx.save();
                 ctx.translate(512, 0);
@@ -539,7 +536,7 @@
             const planetGroup = new THREE.Group();
             scene.add(planetGroup);
 
-            const radius = planet.isSaturn ? 0.88 : 1.0;
+            const radius = planet.isSaturn ? 0.76 : 1.0;
             const geometry = new THREE.SphereGeometry(radius, 48, 48);
             const material = planet.isSun
                 ? new THREE.MeshBasicMaterial({ map: texture })
@@ -552,7 +549,7 @@
             const sphere = new THREE.Mesh(geometry, material);
             planetGroup.add(sphere);
 
-            // Add 3D Rotating Rings for Saturn
+            // Saturn Full 3D Rings (Fully visible without clipping)
             let ringMesh = null;
             if (planet.isSaturn) {
                 const ringCanvas = document.createElement('canvas');
@@ -560,10 +557,10 @@
                 ringCanvas.height = 32;
                 const rCtx = ringCanvas.getContext('2d');
                 const grad = rCtx.createLinearGradient(0, 0, 256, 0);
-                grad.addColorStop(0.0, 'rgba(180, 155, 110, 0.05)');
-                grad.addColorStop(0.15, 'rgba(215, 190, 140, 0.85)');
+                grad.addColorStop(0.0, 'rgba(180, 155, 110, 0.0)');
+                grad.addColorStop(0.12, 'rgba(215, 190, 140, 0.85)');
                 grad.addColorStop(0.45, 'rgba(240, 220, 175, 0.95)');
-                grad.addColorStop(0.55, 'rgba(120, 100, 70, 0.25)'); // Cassini division gap
+                grad.addColorStop(0.55, 'rgba(100, 80, 50, 0.25)'); // Cassini division
                 grad.addColorStop(0.65, 'rgba(225, 200, 150, 0.9)');
                 grad.addColorStop(0.92, 'rgba(195, 170, 125, 0.65)');
                 grad.addColorStop(1.0, 'rgba(180, 155, 110, 0.0)');
@@ -571,15 +568,14 @@
                 rCtx.fillRect(0, 0, 256, 32);
 
                 const ringTex = new THREE.CanvasTexture(ringCanvas);
-                const ringGeo = new THREE.RingGeometry(1.12, 1.85, 64);
-                // Map radial UVs properly
+                const ringGeo = new THREE.RingGeometry(1.02, 2.05, 64);
                 const pos = ringGeo.attributes.position;
                 const uv = ringGeo.attributes.uv;
                 for (let i = 0; i < pos.count; i++) {
                     const vx = pos.getX(i);
                     const vy = pos.getY(i);
                     const dist = Math.sqrt(vx * vx + vy * vy);
-                    uv.setXY(i, (dist - 1.12) / (1.85 - 1.12), 0.5);
+                    uv.setXY(i, (dist - 1.02) / (2.05 - 1.02), 0.5);
                 }
 
                 const ringMat = new THREE.MeshBasicMaterial({
@@ -588,12 +584,11 @@
                     transparent: true
                 });
                 ringMesh = new THREE.Mesh(ringGeo, ringMat);
-                ringMesh.rotation.x = Math.PI / 2.45;
+                ringMesh.rotation.x = Math.PI / 2.35;
                 planetGroup.add(ringMesh);
 
-                // Saturn's natural axial tilt
-                planetGroup.rotation.z = 0.36;
-                planetGroup.rotation.x = 0.14;
+                planetGroup.rotation.z = 0.38;
+                planetGroup.rotation.x = 0.12;
             } else {
                 planetGroup.rotation.z = 0.12;
             }
@@ -607,12 +602,11 @@
                 scene.add(dirLight);
             }
 
-            // Smooth Right-to-Left Axis Rotation
             function animate() {
                 requestAnimationFrame(animate);
-                sphere.rotation.y -= 0.013;
+                sphere.rotation.y -= 0.012;
                 if (ringMesh) {
-                    ringMesh.rotation.z -= 0.008;
+                    ringMesh.rotation.z -= 0.007;
                 }
                 renderer.render(scene, camera);
             }
