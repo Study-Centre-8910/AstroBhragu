@@ -154,7 +154,6 @@
             box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
         }
 
-        /* 3D Rotating Planet Sphere */
         .planet-sphere-wrapper {
             width: 82px;
             height: 82px;
@@ -165,6 +164,7 @@
             justify-content: center;
         }
 
+        /* Normal Rotating Planets */
         .planet-sphere {
             width: 100%;
             height: 100%;
@@ -185,7 +185,7 @@
                         inset 5px 5px 12px rgba(255, 255, 255, 0.25);
         }
 
-        /* Special Ring for Saturn */
+        /* Saturn Ring */
         .saturn-ring {
             position: absolute;
             width: 132px;
@@ -200,18 +200,28 @@
 
         /* Rahu Black Hole (Red Circumference) */
         .rah-hole {
-            background: #000 !important;
-            box-shadow: 0 0 18px #ff2222, inset 0 0 15px #ff4444 !important;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #000;
+            box-shadow: 0 0 18px #ff2222, inset 0 0 15px #ff4444;
             border: 2px solid #ff3333;
-            animation: rotatePlanetAxis 20s linear infinite, pulseRed 3s ease-in-out infinite alternate !important;
+            animation: pulseRed 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 2;
         }
 
         /* Ketu Black Hole (Yellow Circumference) */
         .ket-hole {
-            background: #000 !important;
-            box-shadow: 0 0 18px #ffd700, inset 0 0 15px #ffea00 !important;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #000;
+            box-shadow: 0 0 18px #ffd700, inset 0 0 15px #ffea00;
             border: 2px solid #ffcc00;
-            animation: rotatePlanetAxis 20s linear infinite, pulseYellow 3s ease-in-out infinite alternate !important;
+            animation: pulseYellow 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 2;
         }
 
         @keyframes pulseRed {
@@ -555,7 +565,7 @@
                 
                 let sphereHTML = '';
                 if (p.isBlackHole) {
-                    sphereHTML = `<div class="planet-sphere ${p.holeClass}"></div>`;
+                    sphereHTML = `<div class="${p.holeClass}"></div>`;
                 } else {
                     const ringHTML = p.hasRing ? `<div class="saturn-ring"></div>` : '';
                     sphereHTML = `
@@ -588,6 +598,7 @@
             if (planet.isBlackHole) {
                 iconEl.className = `chat-header-planet ${planet.holeClass}`;
                 iconEl.style.backgroundImage = 'none';
+                iconEl.style.boxShadow = 'none';
             } else {
                 iconEl.className = 'chat-header-planet';
                 iconEl.style.backgroundImage = `url('${planet.texture}')`;
