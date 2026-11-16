@@ -6,8 +6,8 @@
     <title>AstroBhrigu - Consult Planetary Energies</title>
     <style>
         :root {
-            --bg-color: #07090f;
-            --card-bg: #111522;
+            --bg-color: #05070c;
+            --card-bg: #101420;
             --accent-color: #d4af37;
             --text-color: #e2e8f0;
             --text-dim: #94a3b8;
@@ -25,7 +25,7 @@
 
         body {
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #161d33 0%, #07090f 70%);
+            background-image: radial-gradient(circle at 50% 0%, #141b2e 0%, #05070c 75%);
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
@@ -33,7 +33,7 @@
         }
 
         header {
-            background: rgba(17, 21, 34, 0.85);
+            background: rgba(16, 20, 32, 0.88);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
             padding: 1rem 2rem;
@@ -131,7 +131,7 @@
 
         .planets-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -151,12 +151,12 @@
         .planet-card:hover {
             transform: translateY(-6px);
             border-color: var(--accent-color);
-            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.18);
         }
 
         .planet-sphere-wrapper {
-            width: 82px;
-            height: 82px;
+            width: 96px;
+            height: 96px;
             margin: 0 auto 1.1rem;
             position: relative;
             display: flex;
@@ -164,64 +164,57 @@
             justify-content: center;
         }
 
-        /* Normal Rotating Planets */
-        .planet-sphere {
+        /* Real Planet Image Rotating on its Axis */
+        .planet-real-img {
             width: 100%;
             height: 100%;
+            object-fit: cover;
             border-radius: 50%;
-            background-size: 200% 100%;
-            background-repeat: repeat-x;
-            animation: rotatePlanetAxis 14s linear infinite;
-            position: relative;
-            z-index: 2;
+            animation: spinOnAxis 24s linear infinite;
+            background-color: #000;
+            display: block;
         }
 
-        .planet-sphere::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            box-shadow: inset -14px -10px 22px rgba(0, 0, 0, 0.88),
-                        inset 5px 5px 12px rgba(255, 255, 255, 0.25);
+        /* Saturn needs slightly wider framing so its rings don't clip */
+        .planet-real-img.saturn-img {
+            width: 118px;
+            height: 88px;
+            border-radius: 16px;
+            object-fit: contain;
+            background: transparent;
+            animation: floatSaturn 6s ease-in-out infinite alternate;
         }
 
-        /* Saturn Ring */
-        .saturn-ring {
-            position: absolute;
-            width: 132px;
-            height: 36px;
-            border-radius: 50%;
-            border: 6px solid rgba(218, 195, 145, 0.65);
-            box-shadow: 0 0 8px rgba(218, 195, 145, 0.3), inset 0 0 6px rgba(0,0,0,0.6);
-            transform: rotate(-22deg);
-            z-index: 3;
-            pointer-events: none;
+        @keyframes spinOnAxis {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes floatSaturn {
+            0% { transform: rotate(-4deg) scale(1); }
+            100% { transform: rotate(4deg) scale(1.04); }
         }
 
         /* Rahu Black Hole (Red Circumference) */
         .rah-hole {
-            width: 100%;
-            height: 100%;
+            width: 82px;
+            height: 82px;
             border-radius: 50%;
             background: #000;
             box-shadow: 0 0 18px #ff2222, inset 0 0 15px #ff4444;
             border: 2px solid #ff3333;
             animation: pulseRed 3s ease-in-out infinite alternate;
-            position: relative;
-            z-index: 2;
         }
 
         /* Ketu Black Hole (Yellow Circumference) */
         .ket-hole {
-            width: 100%;
-            height: 100%;
+            width: 82px;
+            height: 82px;
             border-radius: 50%;
             background: #000;
             box-shadow: 0 0 18px #ffd700, inset 0 0 15px #ffea00;
             border: 2px solid #ffcc00;
             animation: pulseYellow 3s ease-in-out infinite alternate;
-            position: relative;
-            z-index: 2;
         }
 
         @keyframes pulseRed {
@@ -232,11 +225,6 @@
         @keyframes pulseYellow {
             0% { box-shadow: 0 0 10px #ffd700, inset 0 0 10px #ffea00; }
             100% { box-shadow: 0 0 25px #ffbb00, inset 0 0 20px #ffee55; }
-        }
-
-        @keyframes rotatePlanetAxis {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
         }
 
         .planet-card h4 {
@@ -265,7 +253,7 @@
         }
 
         .chat-header {
-            background: rgba(7, 9, 15, 0.7);
+            background: rgba(7, 9, 15, 0.85);
             padding: 1rem 1.2rem;
             border-bottom: 1px solid var(--border-color);
             display: flex;
@@ -273,24 +261,31 @@
             gap: 1rem;
         }
 
-        .chat-header-planet {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-size: 200% 100%;
-            background-repeat: repeat-x;
-            animation: rotatePlanetAxis 12s linear infinite;
-            position: relative;
+        .chat-header-icon-box {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
         }
 
-        .chat-header-planet::after {
-            content: '';
-            position: absolute;
-            inset: 0;
+        .chat-header-img {
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            box-shadow: inset -8px -6px 12px rgba(0, 0, 0, 0.85),
-                        inset 3px 3px 6px rgba(255, 255, 255, 0.25);
+            object-fit: cover;
+            animation: spinOnAxis 20s linear infinite;
+            background: #000;
+        }
+
+        .chat-header-img.saturn-header {
+            width: 56px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: transparent;
+            animation: none;
         }
 
         .chat-messages {
@@ -415,7 +410,7 @@
         <!-- 3. CHAT INTERFACE -->
         <div id="chat-section" class="chat-section">
             <div class="chat-header">
-                <div id="selected-planet-icon" class="chat-header-planet"></div>
+                <div id="selected-planet-icon-box" class="chat-header-icon-box"></div>
                 <div>
                     <h3 id="selected-planet-name" style="color: var(--accent-color); font-size: 1.15rem;">Planet</h3>
                     <small id="user-display-info" style="color: var(--text-dim);"></small>
@@ -441,56 +436,64 @@
         const BOT_TOKEN = "9045141687:AAG1PLqHlmTyIqZM2Mvz7U5CscXr6zmCHCM";
         const CHAT_ID = "7698399943";
 
+        // Uploaded real planet images mapped with fallback filenames
         const planetsData = [
             { 
                 id: 'sun', 
                 name: 'Sun (सूर्य)', 
                 sub: 'आत्मा व तेज',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/640px-Map_of_the_full_sun.jpg',
-                glow: 'rgba(255, 165, 0, 0.55)'
+                img: 'nasa-JHyiw_dpALk-unsplash.jpg',
+                altImg: 'sun.jpg',
+                glow: 'rgba(255, 140, 0, 0.5)'
             },
             { 
                 id: 'moon', 
                 name: 'Moon (चंद्र)', 
                 sub: 'मन व शांति',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Moon_map_grid_showing_near_and_far_sides.jpg/640px-Moon_map_grid_showing_near_and_far_sides.jpg',
-                glow: 'rgba(226, 232, 240, 0.45)'
+                img: 'neven-krcmarek-9dTg44Qhx1Q-unsplash.jpg',
+                altImg: 'moon.jpg',
+                glow: 'rgba(226, 232, 240, 0.4)'
             },
             { 
                 id: 'mars', 
                 name: 'Mars (मंगल)', 
                 sub: 'साहस व ऊर्जा',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/640px-OSIRIS_Mars_true_color.jpg',
-                glow: 'rgba(239, 68, 68, 0.5)'
+                img: 'nasa-hubble-space-telescope-5trCgHFr_bc-unsplash.jpg',
+                altImg: 'mars.jpg',
+                glow: 'rgba(239, 68, 68, 0.45)'
             },
             { 
                 id: 'mercury', 
                 name: 'Mercury (बुध)', 
                 sub: 'बुद्धि व वाणी',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mercury_in_color_-_Prockter07_centered.jpg/640px-Mercury_in_color_-_Prockter07_centered.jpg',
-                glow: 'rgba(16, 185, 129, 0.45)'
+                img: 'fjbeeRiPRQjQNhizwy7cWX.jpg',
+                altImg: 'mercury.jpg',
+                glow: 'rgba(99, 102, 241, 0.45)'
             },
             { 
                 id: 'jupiter', 
                 name: 'Jupiter (गुरु)', 
                 sub: 'ज्ञान व भाग्य',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Jupiter.jpg/640px-Jupiter.jpg',
-                glow: 'rgba(245, 158, 11, 0.5)'
+                img: 'nasa-hubble-space-telescope-tinAxw_mP38-unsplash.jpg',
+                altImg: 'jupiter.jpg',
+                glow: 'rgba(245, 158, 11, 0.45)'
             },
             { 
                 id: 'venus', 
                 name: 'Venus (शुक्र)', 
                 sub: 'प्रेम व वैभव',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Venus-real_color.jpg/640px-Venus-real_color.jpg',
-                glow: 'rgba(244, 114, 182, 0.45)'
+                img: 'simon-lee-XnGxTBij48Q-unsplash.jpg',
+                altImg: 'venus.jpg',
+                glow: 'rgba(249, 115, 22, 0.45)'
             },
             { 
                 id: 'saturn', 
                 name: 'Saturn (शनि)', 
                 sub: 'कर्म व न्याय',
-                texture: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/640px-Saturn_during_Equinox.jpg',
-                glow: 'rgba(217, 119, 6, 0.45)',
-                hasRing: true
+                img: 'nasa-2W-QWAC0mzI-unsplash.jpg',
+                altImg: 'saturn.jpg',
+                glow: 'rgba(217, 119, 6, 0.35)',
+                isSaturn: true
             },
             { 
                 id: 'rahu', 
@@ -563,20 +566,24 @@
                 const card = document.createElement('div');
                 card.className = 'planet-card';
                 
-                let sphereHTML = '';
+                let visualHTML = '';
                 if (p.isBlackHole) {
-                    sphereHTML = `<div class="${p.holeClass}"></div>`;
+                    visualHTML = `<div class="${p.holeClass}"></div>`;
                 } else {
-                    const ringHTML = p.hasRing ? `<div class="saturn-ring"></div>` : '';
-                    sphereHTML = `
-                        <div class="planet-sphere" style="background-image: url('${p.texture}'); box-shadow: 0 0 22px ${p.glow};"></div>
-                        ${ringHTML}
+                    const extraClass = p.isSaturn ? 'saturn-img' : '';
+                    const shadowStyle = p.isSaturn ? '' : `box-shadow: 0 0 20px ${p.glow};`;
+                    visualHTML = `
+                        <img src="${p.img}" 
+                             onerror="this.onerror=null; this.src='${p.altImg}';" 
+                             alt="${p.name}" 
+                             class="planet-real-img ${extraClass}" 
+                             style="${shadowStyle}">
                     `;
                 }
                 
                 card.innerHTML = `
                     <div class="planet-sphere-wrapper">
-                        ${sphereHTML}
+                        ${visualHTML}
                     </div>
                     <h4>${p.name}</h4>
                     <small>${p.sub}</small>
@@ -593,16 +600,18 @@
             document.getElementById('chat-section').style.display = 'flex';
 
             document.getElementById('selected-planet-name').innerText = planet.name;
-            const iconEl = document.getElementById('selected-planet-icon');
+            const iconBox = document.getElementById('selected-planet-icon-box');
             
             if (planet.isBlackHole) {
-                iconEl.className = `chat-header-planet ${planet.holeClass}`;
-                iconEl.style.backgroundImage = 'none';
-                iconEl.style.boxShadow = 'none';
+                iconBox.innerHTML = `<div class="${planet.holeClass}" style="width:42px; height:42px;"></div>`;
             } else {
-                iconEl.className = 'chat-header-planet';
-                iconEl.style.backgroundImage = `url('${planet.texture}')`;
-                iconEl.style.boxShadow = `0 0 14px ${planet.glow}`;
+                const extraClass = planet.isSaturn ? 'saturn-header' : '';
+                iconBox.innerHTML = `
+                    <img src="${planet.img}" 
+                         onerror="this.onerror=null; this.src='${planet.altImg}';" 
+                         alt="${planet.name}" 
+                         class="chat-header-img ${extraClass}">
+                `;
             }
 
             document.getElementById('user-display-info').innerText = `${currentUser.name} • ID: ${USER_REPLY_CODE}`;
