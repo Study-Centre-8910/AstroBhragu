@@ -157,9 +157,9 @@
         }
 
         .planet-sphere-wrapper {
-            width: 110px;
-            height: 110px;
-            margin: 0 auto 0.9rem;
+            width: 130px;
+            height: 115px;
+            margin: 0 auto 0.75rem;
             position: relative;
             display: flex;
             align-items: center;
@@ -167,32 +167,15 @@
         }
 
         .planet-3d-canvas {
-            width: 110px;
-            height: 110px;
-            display: block;
-            border-radius: 50%;
-        }
-
-        /* Saturn 3D Perspective Tilt & Spin */
-        .saturn-3d-wrapper {
-            width: 135px;
-            height: 100px;
-            perspective: 600px;
+            width: 130px;
+            height: 115px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .saturn-real-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            animation: saturn3DRotate 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes saturn3DRotate {
-            0% { transform: rotateY(-22deg) rotateZ(-4deg) scale(1); }
-            100% { transform: rotateY(22deg) rotateZ(4deg) scale(1.06); }
+        .planet-3d-canvas canvas {
+            display: block;
         }
 
         /* Rahu Black Hole (Red Circumference) */
@@ -262,8 +245,8 @@
         }
 
         .chat-header-icon-box {
-            width: 54px;
-            height: 54px;
+            width: 58px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -425,8 +408,9 @@
                 sub: 'आत्मा व तेज',
                 img: 'nasa-JHyiw_dpALk-unsplash.jpg',
                 altImg: 'sun.jpg',
+                cropRatio: 0.56,
                 isSun: true,
-                glow: 'rgba(255, 140, 0, 0.55)'
+                baseColor: '#e65c00'
             },
             { 
                 id: 'moon', 
@@ -434,7 +418,8 @@
                 sub: 'मन व शांति',
                 img: 'neven-krcmarek-9dTg44Qhx1Q-unsplash.jpg',
                 altImg: 'moon.jpg',
-                glow: 'rgba(226, 232, 240, 0.45)'
+                cropRatio: 0.54,
+                baseColor: '#8c929ac'
             },
             { 
                 id: 'mars', 
@@ -442,7 +427,8 @@
                 sub: 'साहस व ऊर्जा',
                 img: 'nasa-hubble-space-telescope-5trCgHFr_bc-unsplash.jpg',
                 altImg: 'mars.jpg',
-                glow: 'rgba(239, 68, 68, 0.5)'
+                cropRatio: 0.46,
+                baseColor: '#c1440e'
             },
             { 
                 id: 'mercury', 
@@ -450,7 +436,8 @@
                 sub: 'बुद्धि व वाणी',
                 img: 'fjbeeRiPRQjQNhizwy7cWX.jpg',
                 altImg: 'mercury.jpg',
-                glow: 'rgba(99, 102, 241, 0.5)'
+                cropRatio: 0.62,
+                baseColor: '#5a6382'
             },
             { 
                 id: 'jupiter', 
@@ -458,7 +445,8 @@
                 sub: 'ज्ञान व भाग्य',
                 img: 'nasa-hubble-space-telescope-tinAxw_mP38-unsplash.jpg',
                 altImg: 'jupiter.jpg',
-                glow: 'rgba(245, 158, 11, 0.5)'
+                cropRatio: 0.62,
+                baseColor: '#c88b3a'
             },
             { 
                 id: 'venus', 
@@ -466,7 +454,9 @@
                 sub: 'प्रेम व वैभव',
                 img: 'simon-lee-XnGxTBij48Q-unsplash.jpg',
                 altImg: 'venus.jpg',
-                glow: 'rgba(249, 115, 22, 0.5)'
+                cropRatio: 0.58,
+                isSun: true,
+                baseColor: '#d96b27'
             },
             { 
                 id: 'saturn', 
@@ -474,7 +464,9 @@
                 sub: 'कर्म व न्याय',
                 img: 'nasa-2W-QWAC0mzI-unsplash.jpg',
                 altImg: 'saturn.jpg',
-                isSaturn: true
+                cropRatio: 0.34,
+                isSaturn: true,
+                baseColor: '#d8be8a'
             },
             { 
                 id: 'rahu', 
@@ -492,36 +484,43 @@
             }
         ];
 
-        // True 3D Sphere Renderer using Three.js (Rotates Right to Left on Y-Axis)
-        function create3DPlanetSphere(containerEl, planet, size) {
+        // True 3D Sphere & Ring Renderer using Three.js (Zero black seams, Right-to-Left rotation)
+        function create3DPlanetSphere(containerEl, planet, width, height) {
             const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-            camera.position.z = 2.9;
+            const aspect = width / height;
+            const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 100);
+            camera.position.z = planet.isSaturn ? 3.55 : 2.95;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(size, size);
+            renderer.setSize(width, height);
             renderer.setPixelRatio(window.devicePixelRatio || 1);
             containerEl.appendChild(renderer.domElement);
 
-            // Crop circular center of the uploaded image onto a seamless canvas texture
+            // Seamless Texture Canvas (Purely inside the planet disk, zero black margins)
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 256;
             const ctx = canvas.getContext('2d');
+
+            // Fill base color first so no black line ever appears
+            ctx.fillStyle = planet.baseColor || '#888888';
+            ctx.fillRect(0, 0, 512, 256);
+
             const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
 
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = () => {
-                // Extract the planet disk (crop out black margins) and mirror-tile horizontally for seamless 360 rotation
+                // Crop strictly inside the lit planet center so zero black background enters texture
                 const minSide = Math.min(img.width, img.height);
-                const cropSize = minSide * 0.74;
+                const cropSize = minSide * (planet.cropRatio || 0.55);
                 const sx = (img.width - cropSize) / 2;
                 const sy = (img.height - cropSize) / 2;
 
-                // Left half normal
+                // Draw seamless mirrored wrap
                 ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, 256, 256);
-                // Right half mirrored for seamless 360-degree wrap without seam line
                 ctx.save();
                 ctx.translate(512, 0);
                 ctx.scale(-1, 1);
@@ -537,33 +536,84 @@
             };
             img.src = planet.img;
 
-            const geometry = new THREE.SphereGeometry(1, 48, 48);
+            const planetGroup = new THREE.Group();
+            scene.add(planetGroup);
+
+            const radius = planet.isSaturn ? 0.88 : 1.0;
+            const geometry = new THREE.SphereGeometry(radius, 48, 48);
             const material = planet.isSun
                 ? new THREE.MeshBasicMaterial({ map: texture })
                 : new THREE.MeshStandardMaterial({
                     map: texture,
-                    roughness: 0.75,
+                    roughness: 0.72,
                     metalness: 0.05
                 });
 
             const sphere = new THREE.Mesh(geometry, material);
-            // Slight axial tilt for realism
-            sphere.rotation.z = 0.15;
-            scene.add(sphere);
+            planetGroup.add(sphere);
+
+            // Add 3D Rotating Rings for Saturn
+            let ringMesh = null;
+            if (planet.isSaturn) {
+                const ringCanvas = document.createElement('canvas');
+                ringCanvas.width = 256;
+                ringCanvas.height = 32;
+                const rCtx = ringCanvas.getContext('2d');
+                const grad = rCtx.createLinearGradient(0, 0, 256, 0);
+                grad.addColorStop(0.0, 'rgba(180, 155, 110, 0.05)');
+                grad.addColorStop(0.15, 'rgba(215, 190, 140, 0.85)');
+                grad.addColorStop(0.45, 'rgba(240, 220, 175, 0.95)');
+                grad.addColorStop(0.55, 'rgba(120, 100, 70, 0.25)'); // Cassini division gap
+                grad.addColorStop(0.65, 'rgba(225, 200, 150, 0.9)');
+                grad.addColorStop(0.92, 'rgba(195, 170, 125, 0.65)');
+                grad.addColorStop(1.0, 'rgba(180, 155, 110, 0.0)');
+                rCtx.fillStyle = grad;
+                rCtx.fillRect(0, 0, 256, 32);
+
+                const ringTex = new THREE.CanvasTexture(ringCanvas);
+                const ringGeo = new THREE.RingGeometry(1.12, 1.85, 64);
+                // Map radial UVs properly
+                const pos = ringGeo.attributes.position;
+                const uv = ringGeo.attributes.uv;
+                for (let i = 0; i < pos.count; i++) {
+                    const vx = pos.getX(i);
+                    const vy = pos.getY(i);
+                    const dist = Math.sqrt(vx * vx + vy * vy);
+                    uv.setXY(i, (dist - 1.12) / (1.85 - 1.12), 0.5);
+                }
+
+                const ringMat = new THREE.MeshBasicMaterial({
+                    map: ringTex,
+                    side: THREE.DoubleSide,
+                    transparent: true
+                });
+                ringMesh = new THREE.Mesh(ringGeo, ringMat);
+                ringMesh.rotation.x = Math.PI / 2.45;
+                planetGroup.add(ringMesh);
+
+                // Saturn's natural axial tilt
+                planetGroup.rotation.z = 0.36;
+                planetGroup.rotation.x = 0.14;
+            } else {
+                planetGroup.rotation.z = 0.12;
+            }
 
             if (!planet.isSun) {
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
                 scene.add(ambientLight);
 
-                const dirLight = new THREE.DirectionalLight(0xffffff, 1.15);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
                 dirLight.position.set(3, 2, 4);
                 scene.add(dirLight);
             }
 
-            // Animate rotation from Right to Left
+            // Smooth Right-to-Left Axis Rotation
             function animate() {
                 requestAnimationFrame(animate);
-                sphere.rotation.y -= 0.012; // Negative Y rotation spins Right-to-Left
+                sphere.rotation.y -= 0.013;
+                if (ringMesh) {
+                    ringMesh.rotation.z -= 0.008;
+                }
                 renderer.render(scene, camera);
             }
             animate();
@@ -630,18 +680,11 @@
 
                 if (p.isBlackHole) {
                     wrapper.innerHTML = `<div class="${p.holeClass}"></div>`;
-                } else if (p.isSaturn) {
-                    wrapper.innerHTML = `
-                        <div class="saturn-3d-wrapper">
-                            <img src="${p.img}" onerror="this.onerror=null; this.src='${p.altImg}';" alt="${p.name}" class="saturn-real-img">
-                        </div>
-                    `;
                 } else {
                     const canvasHolder = document.createElement('div');
                     canvasHolder.className = 'planet-3d-canvas';
-                    canvasHolder.style.boxShadow = `0 0 22px ${p.glow}`;
                     wrapper.appendChild(canvasHolder);
-                    create3DPlanetSphere(canvasHolder, p, 110);
+                    create3DPlanetSphere(canvasHolder, p, 130, 115);
                 }
 
                 const title = document.createElement('h4');
@@ -671,18 +714,13 @@
 
             if (planet.isBlackHole) {
                 iconBox.innerHTML = `<div class="${planet.holeClass}" style="width:44px; height:44px;"></div>`;
-            } else if (planet.isSaturn) {
-                iconBox.innerHTML = `
-                    <img src="${planet.img}" onerror="this.onerror=null; this.src='${planet.altImg}';" alt="${planet.name}" style="width:62px; height:48px; object-fit:contain;">
-                `;
             } else {
                 const miniHolder = document.createElement('div');
-                miniHolder.style.width = '50px';
-                miniHolder.style.height = '50px';
-                miniHolder.style.borderRadius = '50%';
-                miniHolder.style.boxShadow = `0 0 12px ${planet.glow}`;
+                miniHolder.style.display = 'flex';
+                miniHolder.style.alignItems = 'center';
+                miniHolder.style.justifyContent = 'center';
                 iconBox.appendChild(miniHolder);
-                create3DPlanetSphere(miniHolder, planet, 50);
+                create3DPlanetSphere(miniHolder, planet, 58, 52);
             }
 
             document.getElementById('user-display-info').innerText = `${currentUser.name} • ID: ${USER_REPLY_CODE}`;
