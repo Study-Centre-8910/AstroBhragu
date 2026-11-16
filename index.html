@@ -164,18 +164,19 @@
             justify-content: center;
         }
 
-        /* Real Planet Image Rotating on its Axis */
+        /* Real Planet Image Rotating Right to Left on its Axis */
         .planet-real-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
-            animation: spinOnAxis 24s linear infinite;
+            background-size: 200% 100%;
+            background-repeat: repeat-x;
+            animation: rotateRightToLeft 16s linear infinite;
             background-color: #000;
             display: block;
         }
 
-        /* Saturn needs slightly wider framing so its rings don't clip */
         .planet-real-img.saturn-img {
             width: 118px;
             height: 88px;
@@ -185,9 +186,10 @@
             animation: floatSaturn 6s ease-in-out infinite alternate;
         }
 
-        @keyframes spinOnAxis {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Right to Left Axis Rotation */
+        @keyframes rotateRightToLeft {
+            0% { object-position: 0% 50%; }
+            100% { object-position: 200% 50%; }
         }
 
         @keyframes floatSaturn {
@@ -275,7 +277,7 @@
             height: 46px;
             border-radius: 50%;
             object-fit: cover;
-            animation: spinOnAxis 20s linear infinite;
+            animation: rotateRightToLeft 16s linear infinite;
             background: #000;
         }
 
@@ -436,7 +438,6 @@
         const BOT_TOKEN = "9045141687:AAG1PLqHlmTyIqZM2Mvz7U5CscXr6zmCHCM";
         const CHAT_ID = "7698399943";
 
-        // Uploaded real planet images mapped with fallback filenames
         const planetsData = [
             { 
                 id: 'sun', 
